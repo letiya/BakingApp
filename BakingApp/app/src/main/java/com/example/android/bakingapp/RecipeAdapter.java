@@ -15,9 +15,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
     private String[] mRecipeNames;
 
     public RecipeAdapter() {
-        mRecipeNames = new String[2];
-        mRecipeNames[0] = "recipe 1";
-        mRecipeNames[1] = "recipe 2";
+    }
+
+    public void setRecipeNames(String[] recipeNames) {
+        mRecipeNames = recipeNames;
+        notifyDataSetChanged();
     }
 
 
@@ -39,6 +41,9 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
 
     @Override
     public int getItemCount() {
+        if (mRecipeNames == null) {
+            return 0;
+        }
         return mRecipeNames.length;
     }
 

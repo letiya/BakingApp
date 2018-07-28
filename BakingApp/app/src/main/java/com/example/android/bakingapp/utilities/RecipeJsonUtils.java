@@ -1,5 +1,10 @@
 package com.example.android.bakingapp.utilities;
 
+import com.example.android.bakingapp.database.AppDatabase;
+import com.example.android.bakingapp.database.RecipeEntry;
+import com.example.android.bakingapp.database.RecipeIngredientEntry;
+import com.example.android.bakingapp.database.RecipeStepEntry;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,10 +29,13 @@ public class RecipeJsonUtils {
     private static final String JSON_SERVINGS = "servings";
     private static final String JSON_IMAGE = "image";
 
-    public static void parseRecipeJson(String json) {
+    private static AppDatabase mDb;
+
+    public static void parseRecipeJson(String json, AppDatabase appDatabase) {
         if (json == null) {
             return;
         }
+        mDb = appDatabase;
         try {
             JSONArray recipesArray = new JSONArray(json);
             if (recipesArray != null) {
@@ -55,6 +63,15 @@ public class RecipeJsonUtils {
                         float quantity = Float.parseFloat(ingredientObject.getString(JSON_QUANTITY));
                         String measure = ingredientObject.getString(JSON_MEASURE);
                         String ingredient = ingredientObject.getString(JSON_INGREDIENT);
+                        // Update table, recipeIngredientEntry.
+                        final RecipeIngredientEntry recipeIngredientEntry = new RecipeIngredientEntry(recipeId, quantity, measure, ingredient);
+
+                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                mDb.recipeIngredientDao().insertIngredient(recipeIngredientEntry);
+                            }
+                        });
                     }
                 }
 
@@ -67,11 +84,29 @@ public class RecipeJsonUtils {
                         String description = stepObject.getString(JSON_DESCRIPTION);
                         String videoURL = stepObject.getString(JSON_VIDEO_URL);
                         String thumbnailURL = stepObject.getString(JSON_THUMBNAIL_URL);
+                        // Update table, recipeStepEntry.
+                        final RecipeStepEntry recipeStepEntry = new RecipeStepEntry(recipeId, stepId, shortDescription, description, videoURL, thumbnailURL);
+
+                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                mDb.recipeStepDao().insertStep(recipeStepEntry);
+                            }
+                        });
                     }
                 }
 
                 int servings = Integer.parseInt(recipeObject.getString(JSON_SERVINGS));
                 String image = recipeObject.getString(JSON_IMAGE);
+                // Update table, recipeEntry.
+                final RecipeEntry recipeEntry = new RecipeEntry(recipeId, recipeName, servings, image);
+
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDb.recipeDao().insertRecipe(recipeEntry);
+                    }
+                });
             } catch (JSONException e) {
                 e.printStackTrace();
             }
