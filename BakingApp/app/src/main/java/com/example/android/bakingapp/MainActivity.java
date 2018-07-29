@@ -2,6 +2,7 @@ package com.example.android.bakingapp;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -17,7 +18,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RecipeAdapter.RecipeAdapterOnClickHandler {
 
     @BindView(R.id.recyclerview_recipe) RecyclerView mRecyclerView;
 
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(this, numberOfColumns());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
-        mRecipeAdapter = new RecipeAdapter();
+        mRecipeAdapter = new RecipeAdapter(this);
         mRecyclerView.setAdapter(mRecipeAdapter);
 
         ButterKnife.bind(this);
@@ -73,5 +74,12 @@ public class MainActivity extends AppCompatActivity {
             return 2;
         }
         return numOfColumns;
+    }
+
+    @Override
+    public void onClick(String clickedMovieRecipe) {
+        Intent intentToStartDetailActivity = new Intent(this, DetailActivity.class);
+        intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, clickedMovieRecipe);
+        startActivity(intentToStartDetailActivity);
     }
 }

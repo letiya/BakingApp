@@ -13,8 +13,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
 
     private Context mContext;
     private String[] mRecipeNames;
+    private final RecipeAdapterOnClickHandler mClickHandler;
 
-    public RecipeAdapter() {
+    public RecipeAdapter(RecipeAdapterOnClickHandler handler) {
+        mClickHandler = handler;
     }
 
     public void setRecipeNames(String[] recipeNames) {
@@ -47,12 +49,27 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
         return mRecipeNames.length;
     }
 
-    public class RecipeAdapterViewHolder extends RecyclerView.ViewHolder {
+    public class RecipeAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.tv_recipe_name) TextView mRecipeTextView;
 
         public RecipeAdapterViewHolder(View itemView) {
             super(itemView);
             mRecipeTextView = itemView.findViewById(R.id.tv_recipe_name);
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            String recipeName = mRecipeNames[adapterPosition];
+            mClickHandler.onClick(recipeName);
+        }
+    }
+
+    /**
+     * The interface that receives onClick messages.
+     */
+    public interface RecipeAdapterOnClickHandler {
+        void onClick(String recipeName);
     }
 }
