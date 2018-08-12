@@ -1,28 +1,28 @@
 package com.example.android.bakingapp;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 
-import com.example.android.bakingapp.utilities.MainViewModel;
+import com.example.android.bakingapp.Model.Recipe;
 import com.example.android.bakingapp.utilities.RecipeFetcher;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements RecipeAdapter.RecipeAdapterOnClickHandler {
 
-    @BindView(R.id.recyclerview_recipe) RecyclerView mRecyclerView;
+    private final String TAG_CLICKED_RECIPE = "clickedRecipe";
+    private final String TAG_TABLET = "isTablet";
 
+    @BindView(R.id.recyclerview_recipe) RecyclerView mRecyclerView;
     private RecipeAdapter mRecipeAdapter;
+
+    private boolean mTablet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,19 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
         setContentView(R.layout.activity_main);
 
         mRecyclerView = findViewById(R.id.recyclerview_recipe);
-        GridLayoutManager layoutManager = new GridLayoutManager(this, numberOfColumns());
+
+        RecyclerView.LayoutManager layoutManager;
+
+        if (findViewById(R.id.main_linear_layout) != null) {
+            // Cell phone
+            mTablet = false;
+            layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        } else {
+            // Tablet
+            mTablet = true;
+            layoutManager = new GridLayoutManager(this, numberOfColumns());
+        }
+
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mRecipeAdapter = new RecipeAdapter(this);
@@ -38,26 +50,10 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
 
         ButterKnife.bind(this);
 
-        RecipeFetcher recipeFetcher = new RecipeFetcher(this);
+        RecipeFetcher recipeFetcher = new RecipeFetcher(this, mRecipeAdapter);
         getSupportLoaderManager().initLoader(0, null, recipeFetcher);
 
-        setupViewModel();
     }
-
-    private void setupViewModel() {
-        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        viewModel.getRecipeNames().observe(this, new Observer<List<String>>() {
-            @Override
-            public void onChanged(@Nullable List<String> recipeNameList) {
-                String[] recipeNameArray = new String[recipeNameList.size()];
-                for (int i = 0; i < recipeNameList.size(); i++) {
-                    recipeNameArray[i] = recipeNameList.get(i);
-                }
-                mRecipeAdapter.setRecipeNames(recipeNameArray);
-            }
-        });
-    }
-
 
     /**
      * Dynamically calculate the number of columns and the layout would adapt to the screen size and orientation
@@ -77,9 +73,10 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
     }
 
     @Override
-    public void onClick(String clickedMovieRecipe) {
+    public void onClick(Recipe clickedRecipe) {
         Intent intentToStartDetailActivity = new Intent(this, DetailActivity.class);
-        intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, clickedMovieRecipe);
+        intentToStartDetailActivity.putExtra(TAG_CLICKED_RECIPE, clickedRecipe);
+        intentToStartDetailActivity.putExtra(TAG_TABLET, mTablet);
         startActivity(intentToStartDetailActivity);
     }
 }
