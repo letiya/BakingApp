@@ -1,5 +1,7 @@
 package com.example.android.bakingapp;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.bakingapp.Model.Ingredient;
@@ -16,14 +19,18 @@ import com.example.android.bakingapp.Model.Recipe;
 import com.example.android.bakingapp.Model.Step;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class DetailFragment extends Fragment implements RecipeDetailAdapter.RecipeDetailAdapterOnClickHandler {
 
     private Context mContext;
-    private TextView mIngredient;
+
+    @BindView(R.id.tv_recipe_ingredient)
+    TextView mIngredient;
 
     @BindView(R.id.recyclerview_recipe_detail)
     RecyclerView mRecyclerView;
+
     private RecipeDetailAdapter mRecipeDetailAdapter;
 
     private final String TAG_CLICKED_RECIPE = "clickedRecipe";
@@ -31,6 +38,9 @@ public class DetailFragment extends Fragment implements RecipeDetailAdapter.Reci
     private final String TAG_TABLET = "isTablet";
 
     private boolean mTablet;
+
+    @BindView(R.id.iv_image_recipe)
+    ImageView mFavoriteImageView;
 
     public DetailFragment() {
     }
@@ -44,11 +54,10 @@ public class DetailFragment extends Fragment implements RecipeDetailAdapter.Reci
         mContext = rootView.getContext();
 
         Intent intentThatStartedThisActivity = getActivity().getIntent();
-        Recipe clickedRecipe = intentThatStartedThisActivity.getParcelableExtra(TAG_CLICKED_RECIPE);
+        final Recipe clickedRecipe = intentThatStartedThisActivity.getParcelableExtra(TAG_CLICKED_RECIPE);
         mTablet = intentThatStartedThisActivity.getBooleanExtra(TAG_TABLET, false);
 
-        // Get a reference to the TextView in the fragment layout.
-        mIngredient = rootView.findViewById(R.id.tv_recipe_ingredient);
+        ButterKnife.bind(this, rootView);
 
         // Ingredients
         Ingredient[] ingredients = clickedRecipe.getIngredients();
@@ -63,7 +72,6 @@ public class DetailFragment extends Fragment implements RecipeDetailAdapter.Reci
         mIngredient.setText(ingredientSentence);
 
         // Step 1 ~ Step n
-        mRecyclerView = rootView.findViewById(R.id.recyclerview_recipe_detail);
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
@@ -71,6 +79,31 @@ public class DetailFragment extends Fragment implements RecipeDetailAdapter.Reci
         mRecipeDetailAdapter.setClickedRecipeData(clickedRecipe);
         mRecyclerView.setAdapter(mRecipeDetailAdapter);
         mRecyclerView.setNestedScrollingEnabled(false);
+
+
+
+
+
+
+        final String finalIngredientSentence = ingredientSentence;
+
+        mFavoriteImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, RecipeWidgetProvider.class);
+                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
+                int[] ids = appWidgetManager.getAppWidgetIds(new ComponentName(mContext, RecipeWidgetProvider.class));
+
+                RecipeWidgetProvider.updateRecipeWidget(mContext, appWidgetManager, finalIngredientSentence, ids);
+            }
+        });
+
+
+
+
+
 
         return rootView;
     }
@@ -101,6 +134,5 @@ public class DetailFragment extends Fragment implements RecipeDetailAdapter.Reci
     public interface OnRecipeStepClickListener {
         void OnRecipeStepClicked(Step step);
     }
-
 }
 

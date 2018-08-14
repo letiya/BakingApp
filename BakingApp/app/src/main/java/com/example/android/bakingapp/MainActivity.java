@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
     private final String TAG_TABLET = "isTablet";
 
     @BindView(R.id.recyclerview_recipe) RecyclerView mRecyclerView;
+
     private RecipeAdapter mRecipeAdapter;
 
     private boolean mTablet;
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mRecyclerView = findViewById(R.id.recyclerview_recipe);
+        ButterKnife.bind(this);
 
         RecyclerView.LayoutManager layoutManager;
 
@@ -47,8 +48,6 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Rec
         mRecyclerView.setHasFixedSize(true);
         mRecipeAdapter = new RecipeAdapter(this);
         mRecyclerView.setAdapter(mRecipeAdapter);
-
-        ButterKnife.bind(this);
 
         RecipeFetcher recipeFetcher = new RecipeFetcher(this, mRecipeAdapter);
         getSupportLoaderManager().initLoader(0, null, recipeFetcher);

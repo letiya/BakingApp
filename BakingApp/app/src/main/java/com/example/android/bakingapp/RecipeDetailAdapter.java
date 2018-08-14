@@ -10,6 +10,9 @@ import android.widget.TextView;
 import com.example.android.bakingapp.Model.Recipe;
 import com.example.android.bakingapp.Model.Step;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapter.RecipeDetailAdapterViewHolder> {
 
     private Context mContext;
@@ -59,11 +62,12 @@ public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapte
     }
 
     public class RecipeDetailAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        @BindView(R.id.tv_recipe_detail_name)
         TextView mRecipeDetailTextView;
 
         public RecipeDetailAdapterViewHolder(View itemView) {
             super(itemView);
-            mRecipeDetailTextView = itemView.findViewById(R.id.tv_recipe_detail_name);
+            ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
         }
 

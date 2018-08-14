@@ -52,7 +52,9 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
 
         public RecipeAdapterViewHolder(View itemView) {
             super(itemView);
-            mRecipeTextView = itemView.findViewById(R.id.tv_recipe_name);
+
+            ButterKnife.bind(this, itemView);
+
             itemView.setOnClickListener(this);
         }
 

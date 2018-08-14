@@ -24,15 +24,21 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class StepDetailFragment extends Fragment {
 
     private Context mContext;
 
 
     private SimpleExoPlayer mExoPlayer;
-    private SimpleExoPlayerView mPlayerView;
 
-    private TextView mStepInstruction;
+    @BindView(R.id.videoView)
+    SimpleExoPlayerView mPlayerView;
+
+    @BindView(R.id.tv_recipe_step_instruction)
+    TextView mStepInstruction;
 
     private final String TAG_CLICKED_STEP = "clickedStep";
 
@@ -50,7 +56,8 @@ public class StepDetailFragment extends Fragment {
         Intent intentThatStartedThisActivity = getActivity().getIntent();
         Step clickedStep = intentThatStartedThisActivity.getParcelableExtra(TAG_CLICKED_STEP);
 
-        mPlayerView = rootView.findViewById(R.id.videoView);
+        ButterKnife.bind(this, rootView);
+
         if (mExoPlayer == null) {
             // Create an instance of the ExoPlayer.
             TrackSelector trackSelector = new DefaultTrackSelector();
@@ -68,7 +75,6 @@ public class StepDetailFragment extends Fragment {
             }
         }
 
-        mStepInstruction = rootView.findViewById(R.id.tv_recipe_step_instruction);
         mStepInstruction.setText(clickedStep.getDescription());
 
         return rootView;
