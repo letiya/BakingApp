@@ -5,10 +5,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.bakingapp.Model.Recipe;
 import com.example.android.bakingapp.Model.Step;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -17,15 +19,19 @@ public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapte
 
     private Context mContext;
 
-    private String[] mRecipeDetailData;
+    private String[] mRecipeShortDescription;
+    private String[] mRecipeThumbnailURL;
+
     private void getRecipeDetailData() {
-        mRecipeDetailData = new String[mClickedRecipe.getSteps().length];
+        mRecipeShortDescription = new String[mClickedRecipe.getSteps().length];
+        mRecipeThumbnailURL = new String[mClickedRecipe.getSteps().length];
 
         // Steps
         Step[] steps = mClickedRecipe.getSteps();
         for (int i = 0; i < steps.length; i++) {
             Step step = steps[i];
-            mRecipeDetailData[i] = step.getShortDescription();
+            mRecipeShortDescription[i] = step.getShortDescription();
+            mRecipeThumbnailURL[i] = step.getThumbnailURL();
         }
     }
 
@@ -52,8 +58,13 @@ public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapte
     @Override
     public void onBindViewHolder(RecipeDetailAdapterViewHolder holder, int position) {
         getRecipeDetailData();
-        String shortDescription = "Step " + position + ": " + mRecipeDetailData[position];
+        String shortDescription = "Step " + position + ": " + mRecipeShortDescription[position];
         holder.mRecipeDetailTextView.setText(shortDescription);
+
+        String thumbnailURL = mRecipeThumbnailURL[position];
+        if (thumbnailURL != null && thumbnailURL.length() > 0) {
+            Picasso.with(mContext).load(thumbnailURL).into(holder.mRecipeStepImageView);
+        }
     }
 
     @Override
@@ -64,6 +75,9 @@ public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapte
     public class RecipeDetailAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.tv_recipe_detail_name)
         TextView mRecipeDetailTextView;
+
+        @BindView(R.id.iv_image_step)
+        ImageView mRecipeStepImageView;
 
         public RecipeDetailAdapterViewHolder(View itemView) {
             super(itemView);
