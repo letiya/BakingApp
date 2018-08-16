@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,7 @@ public class StepDetailFragment extends Fragment {
     TextView mStepInstruction;
 
     private final String TAG_CLICKED_STEP = "clickedStep";
+    private final String PLAYBACK_POSITION = "playbackPosition";
 
     public StepDetailFragment() {
     }
@@ -72,6 +74,9 @@ public class StepDetailFragment extends Fragment {
                 MediaSource mediaSource = new ExtractorMediaSource(uri, new DefaultDataSourceFactory(mContext, userAgent), new DefaultExtractorsFactory(), null, null);
                 mExoPlayer.prepare(mediaSource);
                 mExoPlayer.setPlayWhenReady(true);
+                if (savedInstanceState != null) {
+                    mExoPlayer.seekTo(savedInstanceState.getLong(PLAYBACK_POSITION));
+                }
             }
         }
 
@@ -79,6 +84,14 @@ public class StepDetailFragment extends Fragment {
 
         return rootView;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        long playbackPosition = mExoPlayer.getCurrentPosition();
+        outState.putLong(PLAYBACK_POSITION, playbackPosition);
+    }
+
 
     @Override
     public void onDestroy() {
