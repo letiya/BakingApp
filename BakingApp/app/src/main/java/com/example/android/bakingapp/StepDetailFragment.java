@@ -92,6 +92,21 @@ public class StepDetailFragment extends Fragment {
         outState.putLong(PLAYBACK_POSITION, playbackPosition);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) { // Note: On API 24+, onPause is still visible!
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+    }
 
     @Override
     public void onDestroy() {
